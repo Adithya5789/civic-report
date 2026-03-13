@@ -7,19 +7,13 @@ const path = require('path');
 require('dotenv').config();
 
 const logDebug = (msg) => {
-    const formatted = `[${new Date().toISOString()}] DEBUG: ${msg}\n`;
+    const formatted = `[${new Date().toISOString()}] DEBUG: ${msg}`;
     console.log(formatted);
-    try {
-        fs.appendFileSync('C:\\Users\\Aditya\\.antigravity\\civic-report\\debug.log', formatted);
-    } catch (e) {}
 };
 
 const logError = (type, err) => {
-    const msg = `\n[${new Date().toISOString()}] ${type}: ${err.stack || err.message}\n`;
+    const msg = `[${new Date().toISOString()}] ${type}: ${err.stack || err.message}`;
     console.error(msg);
-    try {
-        fs.appendFileSync('C:\\Users\\Aditya\\.antigravity\\civic-report\\debug.log', msg);
-    } catch (e) {}
     return err.message;
 };
 
@@ -34,6 +28,41 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3010;
+
+// --- DB TEST ---
+app.get('/api/test-db', async (req, res) => {
+    const config = {
+        DB_HOST: process.env.DB_HOST ? 'set' : 'NOT SET',
+        DB_PORT: process.env.DB_PORT || '3306 (default)',
+        DB_USER: process.env.DB_USER ? 'set' : 'NOT SET',
+        DB_NAME: process.env.DB_NAME ? 'set' : 'NOT SET',
+        DB_PASSWORD: process.env.DB_PASSWORD ? 'set' : 'NOT SET'
+    };
+    
+    try {
+        // Test basic connection
+        const [result] = await pool.query('SELECT 1 as connected');
+        
+        // Check if tables exist
+        const [tables] = await pool.query('SHOW TABLES');
+        const tableNames = tables.map(t => Object.values(t)[0]);
+        
+        res.json({
+            status: 'connected',
+            config,
+            tables: tableNames,
+            hasUsersTable: tableNames.includes('users'),
+            hasIssuesTable: tableNames.includes('issues')
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'failed',
+            config,
+            error: err.message,
+            code: err.code
+        });
+    }
+});
 
 // --- AUTH --- 
 app.post('/api/auth/login', async (req, res) => {
