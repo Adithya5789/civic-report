@@ -35,24 +35,39 @@ app.use((req, res, next) => {
 
 const PORT = process.env.PORT || 3010;
 
-// --- AUTH MOCK --- 
+// --- AUTH --- 
 app.post('/api/auth/login', async (req, res) => {
     const { email } = req.body;
+    console.log('[v0] Login attempt for email:', email);
+    console.log('[v0] DB_HOST:', process.env.DB_HOST ? 'set' : 'NOT SET');
+    console.log('[v0] DB_USER:', process.env.DB_USER ? 'set' : 'NOT SET');
+    console.log('[v0] DB_NAME:', process.env.DB_NAME ? 'set' : 'NOT SET');
+    
+    if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+    }
+    
     try {
+        console.log('[v0] Querying database for user...');
         const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        console.log('[v0] Query result rows:', rows?.length || 0);
         let user = rows[0];
         if (!user) {
+            console.log('[v0] User not found, creating new user...');
             const id = uuidv4();
             const role = email === 'admin@gmail.com' ? 'admin' : 'citizen';
             const full_name = email.split('@')[0];
             await pool.query('INSERT INTO users (id, full_name, email, role) VALUES (?, ?, ?, ?)', [id, full_name, email, role]);
             const [newUser] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
             user = newUser[0];
+            console.log('[v0] New user created:', user?.id);
         }
+        console.log('[v0] Login successful for user:', user?.id);
         res.json(user);
     } catch (err) {
+        console.error('[v0] Auth Error:', err.message);
         const message = logError('Auth Error', err);
-        res.status(500).json({ error: 'Authentication failed', message });
+        res.status(500).json({ error: 'Authentication failed', message, details: err.code || 'unknown' });
     }
 });
 

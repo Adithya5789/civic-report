@@ -8,15 +8,17 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    connectTimeout: 10000,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
 });
 
-// Test connection
+// Test connection (non-blocking, log-only)
 pool.query('SELECT 1')
-    .then(() => console.log('Database connected successfully!'))
+    .then(() => console.log('[v0] Database connected successfully!'))
     .catch(err => {
-        console.error('Database connection FAILED:', err.message);
-        process.exit(1);
+        console.error('[v0] Database connection FAILED:', err.message);
+        // Don't exit - let requests fail gracefully with error messages
     });
 
 module.exports = pool;
