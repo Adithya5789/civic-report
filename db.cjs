@@ -3,14 +3,16 @@ require('dotenv').config();
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 5,
     queueLimit: 0,
-    connectTimeout: 10000,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+    connectTimeout: 30000,
+    // Enable SSL by default for cloud databases (most require it)
+    ssl: process.env.DB_SSL === 'false' ? undefined : { rejectUnauthorized: false }
 });
 
 // Test connection (non-blocking, log-only)
