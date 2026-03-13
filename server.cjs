@@ -307,7 +307,13 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal Server Error', message: err.message });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Unified Server running on port ${PORT}`);
-    logDebug(`Server started on port ${PORT}`);
-});
+// Export the app for Vercel serverless functions
+module.exports = app;
+
+// Only start the server if not running in a Vercel/Serverless environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Unified Server running on port ${PORT}`);
+        logDebug(`Server started on port ${PORT}`);
+    });
+}
