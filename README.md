@@ -59,4 +59,4 @@ Admins can access the **Database Inspector** to view data in a filtered tabular 
 - **Issed & Solved Dates**
 
 ---
-*Created by the CivicReport Development Team.*
+
