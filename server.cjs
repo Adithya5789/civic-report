@@ -5,6 +5,7 @@ const pool = require('./db.cjs');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
+const notifRoutes = require('./api/notifRoutes.cjs');
 
 const logDebug = (msg) => {
         const formatted = `[${new Date().toISOString()}] DEBUG: ${msg}\n`;
@@ -30,6 +31,7 @@ const logError = (type, err) => {
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api", notifRoutes);
 
 // Global Request Logger
 app.use((req, res, next) => {
