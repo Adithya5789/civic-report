@@ -13,8 +13,8 @@ const IssueManagement = () => {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-    const [selectedIssueForAssign, setSelectedIssueForAssign] = useState(null);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedIssueForAssign, setSelectedIssueForAssign] = useState(null);
   
   const [filters, setFilters] = useState({
       status: '',
@@ -198,8 +198,7 @@ const IssueManagement = () => {
                                           className="mr-2 text-indigo-600 hover:text-indigo-800 font-medium bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded transition inline-flex items-center"
                                         >
                                         Assign
-                                      </button>button>
-                                    </button>
+                                      </button>
                                         <Link 
                                             to={`/IssueDetails?id=${issue.id}`}
                                             className="text-blue-600 hover:text-blue-800 font-medium bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded transition"
@@ -219,6 +218,17 @@ const IssueManagement = () => {
             </div>
         </div>
 
+        <AssignWorkerModal 
+            isOpen={isAssignModalOpen}
+            onClose={() => {
+                setIsAssignModalOpen(false);
+                setSelectedIssueForAssign(null);
+            }}
+            issue={selectedIssueForAssign}
+            onAssignSuccess={() => {
+                listIssues().then(setIssues);
+            }}
+        />
     </div>
   );
 };
